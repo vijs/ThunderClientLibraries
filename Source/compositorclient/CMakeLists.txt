@@ -35,7 +35,11 @@ if("${PLUGIN_COMPOSITOR_IMPLEMENTATION}" STREQUAL "Nexus")
         add_subdirectory(Nexus)
     endif()
 else()
-    add_subdirectory (${PLUGIN_COMPOSITOR_IMPLEMENTATION})
+	if ("${PLUGIN_COMPOSITOR_SUB_IMPLEMENTATION}" STREQUAL "Essos")
+		add_subdirectory (${PLUGIN_COMPOSITOR_SUB_IMPLEMENTATION})
+	else ()
+		add_subdirectory (${PLUGIN_COMPOSITOR_IMPLEMENTATION})
+	endif ()
 endif()
 
 install(
