@@ -31,7 +31,7 @@ namespace Wayland {
     /*static*/ std::string Display::_runtimeDir;
     /*static*/ Display::DisplayMap Display::_displays;
 
-    static int gDisplayWidth, gDisplayHeight;
+    static int gDisplayWidth = 1280, gDisplayHeight = 720;
 
     static void terminatedCb( void * )
     {
@@ -134,12 +134,28 @@ namespace Wayland {
             if (!EssContextSetKeyListener( _essCtx, 0, &keyListener ))
                 Trace("EssContextSetKeyListener Failed\n");
 
-            Debug("Essos Starting\n");
-            if ( EssContextStart( _essCtx ) ) {
-                Debug("Essos started\n");
-                success = true;
-            } else {
-                Debug("Error Starting Essos\n");
+            if ( EssContextInit( _essCtx ) ) {
+                if (!EssContextGetEGLDisplayType( _essCtx, &_nativeDisplay ))
+                    Trace("EssContextGetEGLDisplayType Failed\n");
+
+                if (!EssContextCreateNativeWindow( _essCtx, gDisplayWidth, gDisplayHeight, &_nativeWindow ))
+                    Trace("EssContextCreateNativeWindow Failed\n");
+
+
+                if ( !EssContextGetDisplaySize( _essCtx, &gDisplayWidth, &gDisplayHeight ) )
+                    Trace("EssContextGetDisplaySize Failed\n");
+                printf("display %dx%d\n", gDisplayWidth, gDisplayHeight);
+
+                if ( !EssContextSetInitialWindowSize( _essCtx, gDisplayWidth, gDisplayHeight) )
+                    Trace("EssContextGetDisplaySize Failed\n");
+                Debug("Essos Starting\n");
+                if ( EssContextStart( _essCtx ) ) {
+                    EssContextGetDisplaySize( _essCtx, &gDisplayWidth, &gDisplayHeight );
+                    Debug("Essos started\n");
+                    success = true;
+                } else {
+                    Debug("Error Starting Essos\n");
+                }
             }
         }
 
@@ -161,7 +177,12 @@ namespace Wayland {
         signed int result(0);
 
         _adminLock.Lock();
+        if (_essCtx) {
         EssContextRunEventLoopOnce(_essCtx);
+            if (data) {
+                EssContextUpdateDisplay(_essCtx);
+            }
+        }
         _adminLock.Unlock();
 
         return result;
@@ -170,11 +191,12 @@ namespace Wayland {
     void Display::Process(IProcess* processLoop)
     {
         Trace("--> Entering %s \n", __FUNCTION__);
-        while (processLoop->Dispatch()) {
-            if (_essCtx) {
-                EssContextRunEventLoopOnce(_essCtx);
-            }
+        _running = true;
+        while (processLoop->Dispatch() && _running) {
+            //if (_essCtx) {
             //EssContextUpdateDisplay(_essCtx);
+            //    EssContextRunEventLoopOnce(_essCtx);
+            //}
         }
         Trace("<-- Exiting %s\n", __FUNCTION__);
     }

@@ -385,6 +385,7 @@ namespace Wayland {
         void Process(IProcess* processLoop);
         void Signal()
         { TR();
+            _running = false;
         }
 
 
@@ -412,12 +413,18 @@ namespace Wayland {
         std::list<SurfaceImplementation*> _surfaces;
 
 
+        bool _running;
         mutable uint32_t _refCount;
 
         // Process wide singleton
         static CriticalSection _adminLock;
         static std::string _runtimeDir;
         static DisplayMap _displays;
+
+        NativeDisplayType _nativeDisplay;
+        NativeWindowType _nativeWindow;
+
+
     }; // Display
 
 } // Wayland
