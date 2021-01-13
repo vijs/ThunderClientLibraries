@@ -17,7 +17,7 @@
 
 set(TARGET provisionproxy)
 
-find_package(libprovision REQUIRED)
+find_package(provision REQUIRED)
 
 # Construct a library object
 add_library(${TARGET} STATIC
@@ -32,7 +32,7 @@ set(PUBLIC_HEADERS
 target_link_libraries(${TARGET}
         PUBLIC
           ${NAMESPACE}Core::${NAMESPACE}Core
-          libprovision::libprovision
+          provision::provision
         )
 
 target_link_libraries(${TARGET}
