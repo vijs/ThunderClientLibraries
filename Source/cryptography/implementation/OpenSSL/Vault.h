@@ -27,6 +27,7 @@ class Vault {
 public:
     static Vault& NetflixInstance();
     static Vault& PlatformInstance();
+    static Vault& ProvisioningInstance();
 
 private:
     using Callback = std::function<void(Vault&)>;
